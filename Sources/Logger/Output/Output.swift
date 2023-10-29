@@ -5,7 +5,7 @@
 
 import Foundation
 
-public protocol Output: class {
+public protocol Output: AnyObject {
     var name: String { get }
     var logLevel: Level { get set }
     var formatters: [Formatter] { get set }

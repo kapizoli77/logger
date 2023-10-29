@@ -4,11 +4,10 @@
 //
 
 import Foundation
-import Alamofire
 
 // MARK: - Types
 
-public protocol RemoteLogDecorator: class {
+public protocol RemoteLogDecorator: AnyObject {
     func decorateLogMessage(with message: String) -> String
 }
 
@@ -27,6 +26,8 @@ public final class RemoteOutput {
         return ["message": finalMessage]
     }
 
+    private let urlSession: URLSession
+
     // MARK: - Output proiperties
 
     public var logLevel: Level
@@ -35,9 +36,10 @@ public final class RemoteOutput {
 
     // MARK: - Initialization
 
-    public init(logLevel: Level, endpoint: URL) {
+    public init(logLevel: Level, endpoint: URL, urlSession: URLSession = URLSession.shared) {
         self.logLevel = logLevel
         self.endpoint = endpoint
+        self.urlSession = urlSession
     }
 }
 
@@ -65,15 +67,12 @@ extension RemoteOutput: Output {
 
     public func write(details: LogDetails, finalMessage: String) {
         let params = bodyCreator(details, finalMessage)
-        Alamofire.request(
-            endpoint,
-            method: HTTPMethod.post,
-            parameters: params,
-            encoding: Alamofire.URLEncoding.default,
-            headers: nil).responseJSON { result in
-                guard let response = result.response else { return }
-
-                print(response.statusCode)
+        let bodyData = try? JSONSerialization.data(withJSONObject: params)
+        var request = URLRequest(url: endpoint)
+        request.httpMethod = "POST"
+        request.httpBody = bodyData
+        urlSession.dataTask(with: request) { _, _, _ in
+            // TODO: - Handle at least error
         }
     }
 }

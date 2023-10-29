@@ -1,17 +1,17 @@
 //
-//  Filter.swift
+//  Formatter.swift
 //  Logger
 //
 
 import Foundation
 
-public protocol Filter: class {
+public protocol Formatter: AnyObject {
     var name: String { get }
 
-    func shouldLog(details: LogDetails) -> Bool
+    func format(details: inout LogDetails)
 }
 
-extension Filter {
+extension Formatter {
     public var name: String {
         String(describing: Self.self)
     }

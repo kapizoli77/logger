@@ -35,7 +35,7 @@ public final class CrashlyticsOutput {
     // MARK: Properties
 
     public var formatters = [Logger.Formatter]()
-    public var filters = [Filter]()
+    public var filters = [Logger.Filter]()
 
     private let mode: Mode
 
@@ -70,5 +70,10 @@ extension CrashlyticsOutput: Output {
         let error = NSError(domain: errorDomain, code: -1001, userInfo: userInfo)
 
         Crashlytics.crashlytics().record(error: error)
+    }
+
+    public func shouldLog(by level: Level) -> Bool {
+        // This output is more complex, so it's checked in the write method
+        true
     }
 }

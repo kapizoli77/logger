@@ -36,11 +36,13 @@ public final class ConsoleOutput {
 
 extension ConsoleOutput: Output {
     public func write(details: LogDetails, finalMessage: String) {
-        guard details.level >= minLogLevel else { return }
-
         switch mode {
         case .print: print(finalMessage)
         case .nsLog: NSLog(finalMessage)
         }
+    }
+
+    public func shouldLog(by level: Level) -> Bool {
+        level >= minLogLevel
     }
 }

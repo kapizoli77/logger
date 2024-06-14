@@ -8,6 +8,7 @@ public protocol Output: AnyObject {
     var formatters: [Formatter] { get set }
     var filters: [Filter] { get set }
 
+    func shouldLog(by level: Level) -> Bool
     func log(details: LogDetails)
     func write(details: LogDetails, finalMessage: String)
     func addFormatter(_ formatter: Formatter)
@@ -20,11 +21,10 @@ extension Output {
 
     public func log(details: LogDetails) {
         // Apply Filters
-        for filter in filters {
-            if !filter.shouldLog(details: details) {
-                return
-            }
-        }
+        guard filters.allSatisfy( { $0.shouldLog(details: details) }) else { return }
+
+        // Check log level criteria
+        guard shouldLog(by: details.level) else { return }
 
         var logDetails = details
         // Apply Formatters
